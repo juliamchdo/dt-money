@@ -39,6 +39,11 @@ export function Transactions() {
                 </tr>
               );
             })}
+            {transactions.length === 0 && (
+              <tr>
+                <td>Nenhuma transação encontrada.</td>
+              </tr>
+            )}
           </tbody>
         </TransactionsTable>
       </TransactionsContainer>
