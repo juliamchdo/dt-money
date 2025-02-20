@@ -1,5 +1,6 @@
-import { createContext, useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { api } from "../lib/axios";
+import { createContext } from "use-context-selector";
 
 export interface Transaction {
   id: number;
@@ -34,7 +35,7 @@ export const TransactionsContext = createContext(
 export function TransactionsProvider({ children }: TransactionProviderProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
-  async function fetchTransactions(query?: string) {
+  const fetchTransactions = useCallback(async (query?: string) => {
     const response = await api.get("/transactions", {
       params: {
         _sort: "createdAt",
@@ -42,12 +43,10 @@ export function TransactionsProvider({ children }: TransactionProviderProps) {
         q: query,
       },
     });
-
-    console.log("creat", response.data);
     setTransactions(response.data);
-  }
+  }, []);
 
-  async function createTransaction(data: CreateTransactionIput) {
+  const createTransaction = useCallback(async (data: CreateTransactionIput) => {
     const { description, price, category, type } = data;
 
     const response = await api.post("/transactions", {
@@ -59,11 +58,11 @@ export function TransactionsProvider({ children }: TransactionProviderProps) {
     });
 
     setTransactions((state) => [response.data, ...state]);
-  }
+  }, []);
 
   useEffect(() => {
     fetchTransactions();
-  }, []);
+  }, [fetchTransactions]);
 
   return (
     <TransactionsContext.Provider
